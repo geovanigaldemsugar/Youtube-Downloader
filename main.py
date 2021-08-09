@@ -11,6 +11,7 @@ import subprocess
 import pytube
 import threading
 import patoolib
+import shutil
 import urllib3
 import random
 import ctypes
@@ -136,19 +137,24 @@ class YTD():
             self.get_admin_rights()
 
             # download file
-            request_for_rar = requests.get('https://download851.mediafire.com/cpgbkqhaayqg/00e1qe5vmwfbwl7/ffmpeg.rar')
+            request_for_rar = requests.get('https://download851.mediafire.com/xhj4zgy1t6eg/00e1qe5vmwfbwl7/ffmpeg.rar')
             
-            dwn_path = 'C:/ffmpeg.rar'
+            dwn_path = 'C:/hold_ffmpeg/ffmpeg.rar'
+
+            # make directory
+            if os.path.isdir('C:/hold_ffmpeg') == False:
+                os.mkdir('C:/hold_ffmpeg')
 
             with open( dwn_path, 'wb') as ffmpeg_rar : 
-
-                ffmpeg_rar.write(request_for_rar.content)
+                
+                for chunk in request_for_rar.iter_content(chunk_size = 8761):
+                    ffmpeg_rar.write(chunk)
 
             # extract zip
             patoolib.extract_archive(dwn_path, outdir = 'C:/', verbosity = -1, interactive = False)
 
-            # delete rar 
-            os.remove('C:/ffmpeg.rar')
+            # delete dir
+            shutil.rmtree('C:/hold_ffmpeg')
 
             # add ffmpeg to path
             subprocess.run(['powershell', 'setx', 'PATH', r'"$env:path;C:\ffmpeg"', '-m'])
