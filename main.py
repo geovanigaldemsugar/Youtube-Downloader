@@ -10,21 +10,17 @@ import requests
 import subprocess
 import pytube
 import threading
-import patoolib
-import shutil
 import urllib3
 import random
-import ctypes
-import sys
 import os
-
+import sys
 
 class YTD():
 
     def __init__(self, root):
 
-        self.install_and_setup_ffmpeg() # install ffmpge so that 1080p video with audo can be made
         self.install_font_to_system_font() # add font to system so that tkitner can use it 
+        self.install_and_setup_ffmpeg() # install ffmpge so that 1080p video with audo can be made
         self.root = root
         self.is_SQ_win_created = False
         self.font = 'Permanent Marker'
@@ -134,27 +130,13 @@ class YTD():
 
         if os.path.isdir('C:/ffmpeg') == False:
 
-            self.get_admin_rights()
+            #create directory
+            os.mkdir('C:/ffmpeg')
 
-            # download file
-            request_for_rar = requests.get('https://download851.mediafire.com/xhj4zgy1t6eg/00e1qe5vmwfbwl7/ffmpeg.rar')
-            
-            dwn_path = 'C:/hold_ffmpeg/ffmpeg.rar'
+            self.download('https://www.dropbox.com/s/3vdtokjyar19st2/ffmpeg.exe?dl=1', 'C:/ffmpeg/ffmpeg.exe')
+            self.download('https://www.dropbox.com/s/w0wuz7vk58tqt4b/ffplay.exe?dl=1', 'C:/ffmpeg/ffplay.exe')
+            self.download('https://www.dropbox.com/s/3vshgeeqi1pj6li/ffprobe.exe?dl=1', 'C:/ffmpeg/ffprobe.exe')
 
-            # make directory
-            if os.path.isdir('C:/hold_ffmpeg') == False:
-                os.mkdir('C:/hold_ffmpeg')
-
-            with open( dwn_path, 'wb') as ffmpeg_rar : 
-                
-                for chunk in request_for_rar.iter_content(chunk_size = 8761):
-                    ffmpeg_rar.write(chunk)
-
-            # extract zip
-            patoolib.extract_archive(dwn_path, outdir = 'C:/', verbosity = -1, interactive = False)
-
-            # delete dir
-            shutil.rmtree('C:/hold_ffmpeg')
 
             # add ffmpeg to path
             subprocess.run(['powershell', 'setx', 'PATH', r'"$env:path;C:\ffmpeg"', '-m'])
@@ -163,25 +145,26 @@ class YTD():
         '''  self explanitory  '''
 
         if os.path.exists('C:/Windows/Fonts/PermanentMarker-Regular.ttf') ==  False:
-            self.get_admin_rights()
+       
+            request_for_font = requests.get('https://www.dropbox.com/s/m3eta3mzv9qj9xs/PermanentMarker-Regular.ttf?dl=1')
 
-            request_for_font = requests.get('https://download1979.mediafire.com/l4eo71ia2ptg/iwwwhgypxsesi31/PermanentMarker-Regular.ttf')
+            self.download('https://www.dropbox.com/s/m3eta3mzv9qj9xs/PermanentMarker-Regular.ttf?dl=1', 'PermanentMarker-Regular.ttf')
 
-            with open('PermanentMarker-Regular.ttf', 'wb') as font_file:
-                font_file.write(request_for_font.content)
-            
             self.font_path = os.path.abspath('PermanentMarker-Regular.ttf')
         
             install_font(self.font_path) # function was taken from https://gist.github.com/lpsandaruwan/7661e822db3be37e4b50ec9579db61e0
 
             os.remove('PermanentMarker-Regular.ttf')
 
-    def get_admin_rights(self):
-        '''  self explanitory  '''
+    def download(self, url, dir):
+        '''  download anthing of choice from the inter net given an url  '''
 
-        if ctypes.windll.shell32.IsUserAnAdmin() == False:
-            ctypes.windll.shell32.ShellExecuteW( None, 'runas', sys.executable, sys.argv[0], None, None)
-            exit(0)
+        request = requests.get(url)
+
+        with open( dir, 'wb') as file : 
+
+            for chunk in request.iter_content(chunk_size = 8761):
+                file.write(chunk)
 
 
     # these create new windows using tkinter toplevel
@@ -402,10 +385,11 @@ class YTD():
 
             vid = ffmpeg.input(f'{self.directory}/vid.mp4')
             aud = ffmpeg.input(f'{self.directory}/aud.mp4')
-            merged_file_path = f'{self.directory}/{self.yt.title}.mp4'
+            merged_file_path = f'{self.directory}/{self.yt_title}.mp4'
 
             ffmpeg.concat(vid, aud, a = 1, unsafe = True).output(merged_file_path, loglevel = 'quiet').run(overwrite_output = True)
-
+            print(sys.stderr.output)
+            
             # clean up
             os.remove(f'{self.directory}/vid.mp4')
             os.remove(f'{self.directory}/aud.mp4')
