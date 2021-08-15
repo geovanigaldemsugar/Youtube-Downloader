@@ -13,7 +13,7 @@ import threading
 import urllib3
 import random
 import os
-import sys
+
 
 class YTD():
 
@@ -388,7 +388,7 @@ class YTD():
             merged_file_path = f'{self.directory}/{self.yt_title}.mp4'
 
             ffmpeg.concat(vid, aud, a = 1, unsafe = True).output(merged_file_path, loglevel = 'quiet').run(overwrite_output = True)
-            print(sys.stderr.output)
+         
             
             # clean up
             os.remove(f'{self.directory}/vid.mp4')
